@@ -18,3 +18,21 @@ export const accountHolders = [
         role: 'joint-secondary'
     }
 ];
+
+export const availableAccountHolders = [
+    {
+        firstName: 'Sam', 
+        lastName: 'Jones', 
+        memberNumber: '23457999'       
+    },
+    {
+        firstName: 'Jen', 
+        lastName: 'Harrison', 
+        memberNumber: '23457005'
+    },
+    {
+        firstName: 'Julie', 
+        lastName: 'Harrison', 
+        memberNumber: '26657880'
+    }
+];

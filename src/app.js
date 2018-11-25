@@ -1,3 +1,5 @@
+import {createStore} from 'redux'
+import root from './redux/combineReducers';
 import {html, render} from 'lit-html';
 import {repeat} from 'lit-html/directives/repeat';
 import Header from './components/Header';
@@ -9,7 +11,6 @@ import {
     flexChildStyle,
     accountHolderTextStyle
 } from './styles';
-import {accountHolders} from './data/accountHolders';
 import {selectOptions} from './options';
 
 //TODO import from a handlers/actions directory
@@ -18,8 +19,17 @@ function selectHandler(e) {
     console.log(e.target.value);
 }
 
+
+
+function configureStore() {
+    return createStore(root);
+}
+const store = configureStore();
+
 export default function app() {
+    
     const body = document.body;
+    let accountHolders = store.getState().accountHolders;
     
     let acctHolders = repeat(accountHolders, (a) => a.memberNumber, (a, index) => {
         let id = a.memberNumber;
