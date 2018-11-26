@@ -1,6 +1,8 @@
 import {createStore} from 'redux'
 import root from './redux/combineReducers';
+import * as C from './redux/constants';
 import {html, render} from 'lit-html';
+import {LitElement, html as lHtml} from '@polymer/lit-element';
 import {repeat} from 'lit-html/directives/repeat';
 import Header from './components/Header';
 import Select from './components/Select';
@@ -13,18 +15,15 @@ import {
 } from './styles';
 import {selectOptions} from './options';
 
-//TODO import from a handlers/actions directory
-function selectHandler(e) {
-    console.log(e.target.id);
-    console.log(e.target.value);
-}
-
-
-
 function configureStore() {
-    return createStore(root);
+    return createStore(root, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 }
 const store = configureStore();
+//TODO import from a handlers/actions directory
+function selectHandler(e) {
+    let {id, value: newRole} = e.target;
+    store.dispatch({type: C.UPDATE_ROLE, payload: {id, newRole}});
+}
 
 export default function app() {
     
@@ -50,7 +49,7 @@ export default function app() {
             </div>
         `;
     });
-
+    
     function Page(title) {
         return html`
             <div style=${appStyle}>
@@ -63,5 +62,15 @@ export default function app() {
             </div>
         `;
     }
+       
     render(Page('Add / Remove Account Holders'), body);
 }
+
+class XSample extends LitElement {
+    render() {
+        return lHtml`
+            <h1>Hello</h1>
+        `;
+    }
+}
+customElements.define('x-sample', XSample);
