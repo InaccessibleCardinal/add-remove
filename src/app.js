@@ -1,5 +1,5 @@
 import {createStore} from 'redux'
-import root from './redux/combineReducers';
+import root, {getCounter} from './redux/combineReducers';
 import * as C from './redux/constants';
 import {html, render} from 'lit-html';
 import {LitElement, html as lHtml} from '@polymer/lit-element';
@@ -63,13 +63,38 @@ export default function app() {
         `;
     }
        
-    render(Page('Add / Remove Account Holders'), body);
+    render(Page('Add / Remove Account Holders'), document.getElementById('test1'));
 }
 
+//try to get redux changes reflecting in this shitshow
+let counter = store.getState().counter;
 class XSample extends LitElement {
+   //need a constructor with this.attachShadow??
+    static get properties() {
+        return {
+            counter: {type: Number}
+        };
+    }
+    add() {
+        store.dispatch({type: 'ADD'});
+        this._invalidate(); 
+    }
+    subtract() {
+        store.dispatch({type: 'SUBTRACT'});
+        this._invalidate(); 
+    }
+    getCount() {
+       return getCounter(store.getState()); 
+    }
     render() {
         return lHtml`
-            <h1>Hello</h1>
+        <style>button:hover {cursor: pointer}</style>
+            <div>
+                <button @click=${this.subtract}>SUBTRACT</button>
+                <button @click=${this.add}>ADD</button>            
+                <h1>${this.getCount()}</h1>
+                <p>Some DOM that better not be changing...otherwise, what's the point.</p>
+            </div>
         `;
     }
 }

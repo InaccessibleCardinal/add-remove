@@ -24,10 +24,24 @@ export function availableHoldersReducer(state = availableAccountHolders, action)
         }
     }
 }
+let count = 0;
+export function fakeCountReducer(state = count, action) {
+    if (action.type === 'ADD') {
+        return state + 1;
+    } else if (action.type === 'SUBTRACT') {
+        return state - 1;
+    } else {
+        return state;
+    }
+}
 
+export function getCounter(state) {
+    return state.counter;
+}
 const root = combineReducers({
     accountHolders: holdersReducer,
-    availableAccountHolders: availableHoldersReducer
+    availableAccountHolders: availableHoldersReducer,
+    counter: fakeCountReducer
 });
 
 export default root;
