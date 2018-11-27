@@ -2,6 +2,7 @@
 import {combineReducers} from 'redux';
 import {accountHolders, availableAccountHolders} from '../data/accountHolders';
 import * as C from './constants';
+
 export function holdersReducer(state = accountHolders, action) {
     switch (action.type) {
         case C.UPDATE_ROLE: {
@@ -14,6 +15,10 @@ export function holdersReducer(state = accountHolders, action) {
     }
 }
 
+export function getAccountHolders(state) {
+    return state.accountHolders;
+}
+
 export function availableHoldersReducer(state = availableAccountHolders, action) {
     switch (action.type) {
         case C.UPDATE_NEW_ROLE: {
@@ -24,6 +29,16 @@ export function availableHoldersReducer(state = availableAccountHolders, action)
         }
     }
 }
+
+export function getAvailableAccountHolders(state) {
+    return state.availableAccountHolders;
+}
+
+export function getAvailableAccountHoldersNotSelected(state) {
+    return state.availableAccountHolders.filter((a) => !a.selected);
+}
+
+
 let count = 0;
 export function fakeCountReducer(state = count, action) {
     if (action.type === 'ADD') {

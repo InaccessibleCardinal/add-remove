@@ -1,10 +1,10 @@
 import {createStore} from 'redux'
-import root, {getCounter} from './redux/combineReducers';
+import root, {getCounter, getAccountHolders} from './redux/combineReducers';
 import * as C from './redux/constants';
-import {html, render} from 'lit-html';
-import {LitElement, html as lHtml} from '@polymer/lit-element';
+// import {html, render} from 'lit-html';
+import {LitElement, html} from '@polymer/lit-element';
 import {repeat} from 'lit-html/directives/repeat';
-import Header from './components/Header';
+import Header, {Header2} from './components/Header';
 import Select from './components/Select';
 import {
     appStyle, 
@@ -14,6 +14,7 @@ import {
     accountHolderTextStyle
 } from './styles';
 import {selectOptions} from './options';
+import guid from './util/guid';
 
 function configureStore() {
     return createStore(root, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
@@ -26,76 +27,126 @@ function selectHandler(e) {
 }
 
 export default function app() {
+
+    class UpdateHolders extends LitElement {
+        constructor() {
+            super();
+            this.localNumber = 0;
+        }
+        static get properties() {
+            return {
+                accountHolders: {type: Array},
+                localNumber: {type: Number}
+            };
+        }
+
+        addToLocalNumber() {
+            this.localNumber +=1;
+            this._invalidate();
+        }
+        updateRole(e) {
+            let {id, value: newRole} = e.target;
+            store.dispatch({type: C.UPDATE_ROLE, payload: {id, newRole}});
+            this._invalidate();
+        }
+        getHolders() {
+            return getAccountHolders(store.getState());
+        }
+        render() {
+            const title = 'Add /Remove V2';
     
-    const body = document.body;
-    let accountHolders = store.getState().accountHolders;
-    
-    let acctHolders = repeat(accountHolders, (a) => a.memberNumber, (a, index) => {
-        let id = a.memberNumber;
+            let holders = repeat(this.getHolders(), (a) => a.id, (a, index) => {
+                let id = a.id;
+                return html`
+                    <div style=${flexContainerStyle}>
+                        <div style=${flexChildStyle}>
+                            <div style=${accountHolderTextStyle}><span>Account Holder:<span></div>
+                            <div style=${accountHolderTextStyle}><span>${a.firstName + ' ' + a.lastName}</span></div>
+                        </div>
+                        <div style=${flexChildStyle}>
+                            <div style=${accountHolderTextStyle}><span>role:</span></div>
+                            <div style=${accountHolderTextStyle}><span>${a.role}</span></div>
+                        </div>
+                        <div style=${flexChildStyle}>
+                            <div style=${accountHolderTextStyle}><span>new role:</span></div>
+                            <div style=${accountHolderTextStyle}>${Select(selectOptions, this.updateRole, id)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            return html`
+                <div style=${appStyle}>
+                    <div>
+                        ${Header(title, appHeaderStyle)}
+                    </div>
+                    <div>    
+                        ${holders}
+                    </div>
+                    <hr />
+                    ${ShowHolderChanges(this.getHolders())}
+                    <hr />
+                    <button @click=${this.addToLocalNumber}>Add a Field</button>
+                    ${newHolderForm(this.localNumber, () => {})}
+                </div>
+            `;
+        }
+    }
+    customElements.define('update-holders', UpdateHolders);
+}
+
+
+
+function ShowHolderChanges(holders) {
+    let holdersMarkup = repeat(holders, (a) => a.id, (a, index) => {
         return html`
             <div style=${flexContainerStyle}>
                 <div style=${flexChildStyle}>
-                    <div style=${accountHolderTextStyle}><span>Account Holder:<span></div>
                     <div style=${accountHolderTextStyle}><span>${a.firstName + ' ' + a.lastName}</span></div>
                 </div>
                 <div style=${flexChildStyle}>
-                    <div style=${accountHolderTextStyle}><span>role:</span></div>
-                    <div style=${accountHolderTextStyle}><span>${a.role}</span></div>
+                    <div style=${accountHolderTextStyle}><span>new role: </span></div>
                 </div>
                 <div style=${flexChildStyle}>
-                    <div style=${accountHolderTextStyle}><span>new role:</span></div>
-                    <div style=${accountHolderTextStyle}>${Select(selectOptions, selectHandler, id)}</div>
+                    <div style=${accountHolderTextStyle}><span>${a.newRole || 'Set a new role...'}</span></div>
                 </div>
             </div>
         `;
     });
-    
-    function Page(title) {
-        return html`
-            <div style=${appStyle}>
-                <div>
-                    ${Header(title, appHeaderStyle)}
-                </div>
-                <div>    
-                    ${acctHolders}
-                </div>
+    return html`
+        <div>
+            <div>${Header2('Changes:', appHeaderStyle)}</div>
+            <div>
+                ${holdersMarkup}
             </div>
-        `;
+        </div>
+    `;
+}
+//TODO --make a class?
+function newHolderForm(numberOfFields, callback) {
+    let options = [{value: 'a', displayName: 'opt A'}, {value: 'b', displayName: 'opt B'}, {value: 'c', displayName: 'opt C'}];
+    if (numberOfFields < 1) {
+        return html`<p>Add someone...</p>`;
+    } else {
+        let mapBase = makeArray(numberOfFields).map((i) => {
+            let o = {};
+            o.uid = guid();
+            return o;
+        });
+        let fieldList = repeat(mapBase, (o) => o.uid, (o) => {
+            return html`
+                <div>
+                    ${Select(options, callback, o.uid)}
+                </div>
+            `;
+        });
+        return fieldList;
     }
-       
-    render(Page('Add / Remove Account Holders'), document.getElementById('test1'));
 }
 
-//try to get redux changes reflecting in this shitshow
-let counter = store.getState().counter;
-class XSample extends LitElement {
-   //need a constructor with this.attachShadow??
-    static get properties() {
-        return {
-            counter: {type: Number}
-        };
+function makeArray(n) {
+    let arr = [];
+    for (let i = 0; i < n; ++i) {
+        arr.push(i);
     }
-    add() {
-        store.dispatch({type: 'ADD'});
-        this._invalidate(); 
-    }
-    subtract() {
-        store.dispatch({type: 'SUBTRACT'});
-        this._invalidate(); 
-    }
-    getCount() {
-       return getCounter(store.getState()); 
-    }
-    render() {
-        return lHtml`
-        <style>button:hover {cursor: pointer}</style>
-            <div>
-                <button @click=${this.subtract}>SUBTRACT</button>
-                <button @click=${this.add}>ADD</button>            
-                <h1>${this.getCount()}</h1>
-                <p>Some DOM that better not be changing...otherwise, what's the point.</p>
-            </div>
-        `;
-    }
+    return arr;
 }
-customElements.define('x-sample', XSample);

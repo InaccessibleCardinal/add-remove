@@ -1,6 +1,7 @@
 import {html} from 'lit-html';
 import {repeat} from 'lit-html/directives/repeat';
 //Select.js
+const selectStyle = `cursor: pointer;`;
 export default function Select(options, callback, id) {
     const optionTags = repeat(options, (opt) => opt.id, (opt) => {
         return html`
@@ -8,7 +9,7 @@ export default function Select(options, callback, id) {
         `;
     });
     return html`
-        <select id=${id} @change=${callback}>
+        <select style=${selectStyle} id=${id} @change=${callback}>
             ${optionTags}
         </select>
     `;

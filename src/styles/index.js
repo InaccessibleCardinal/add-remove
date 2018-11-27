@@ -7,7 +7,6 @@ export const flexChildStyle = `
     flex: 1;
     height: 100%;
     padding: 1em;
-    border: 1px solid;
 `;
 export const appStyle = `
     font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
@@ -17,6 +16,11 @@ export const appStyle = `
     height: 100%;
 `;
 
-export const appHeaderStyle = `text-align: center; padding: 1em;`;
+export const appHeaderStyle = `
+    text-align: center;
+    padding: 1em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 400;
+`;
 
 export const accountHolderTextStyle = `text-transform: capitalize`;
