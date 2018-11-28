@@ -1,10 +1,14 @@
 //
 import {combineReducers} from 'redux';
-import {accountHolders, availableAccountHolders} from '../data/accountHolders';
+import {availableAccountHolders} from '../data/accountHolders';
 import * as C from './constants';
 
-export function holdersReducer(state = accountHolders, action) {
+export function holdersReducer(state = [], action) {
     switch (action.type) {
+        case C.GET_ACCOUNT_HOLDERS_SUCCESS: {
+console.log('in reducer: ',action.payload)
+            return [...action.payload];
+        }
         case C.UPDATE_ROLE: {
             let {id, newRole} = action.payload;
             return updateArrayById(state, id, [{changeKey: 'newRole', changeValue: newRole}]);

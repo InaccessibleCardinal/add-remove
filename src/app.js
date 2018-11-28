@@ -15,6 +15,8 @@ import {
 } from './styles';
 import {selectOptions} from './options';
 import guid from './util/guid';
+//import request from './redux/actions/request';
+import {getAccountHoldersFromService} from './redux/actions/async';
 
 function configureStore() {
     return createStore(root, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
@@ -26,12 +28,18 @@ function selectHandler(e) {
     store.dispatch({type: C.UPDATE_ROLE, payload: {id, newRole}});
 }
 
+let url = 'https://jsonplaceholder.typicode.com/users';
+let config = {method: 'GET', url: url};
+
 export default function app() {
+
+    
 
     class UpdateHolders extends LitElement {
         constructor() {
             super();
             this.localNumber = 0;
+            this.holdersService();
         }
         static get properties() {
             return {
@@ -51,6 +59,9 @@ export default function app() {
         }
         getHolders() {
             return getAccountHolders(store.getState());
+        }
+        holdersService() {
+            getAccountHoldersFromService(store.dispatch);
         }
         render() {
             const title = 'Add /Remove V2';

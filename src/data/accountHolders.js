@@ -4,21 +4,21 @@ export const accountHolders = [
         lastName: 'Harrison', 
         memberNumber: '23457884', 
         role: 'primary',
-        id: '23457884',
+        id: '23457884'
     },
     {
         firstName: 'Marvin', 
         lastName: 'Harrison', 
         memberNumber: '23457885', 
         role: 'joint-secondary',
-        id: '23457885',
+        id: '23457885'
     },
     {
         firstName: 'Sherry', 
         lastName: 'Harrison', 
         memberNumber: '23457887',  
         role: 'joint-secondary',
-        id: '23457887',
+        id: '23457887'
     }
 ];
 
