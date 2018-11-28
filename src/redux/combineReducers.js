@@ -6,7 +6,7 @@ import * as C from './constants';
 export function holdersReducer(state = [], action) {
     switch (action.type) {
         case C.GET_ACCOUNT_HOLDERS_SUCCESS: {
-console.log('in reducer: ',action.payload)
+
             return [...action.payload];
         }
         case C.UPDATE_ROLE: {
@@ -25,8 +25,23 @@ export function getAccountHolders(state) {
 
 export function availableHoldersReducer(state = availableAccountHolders, action) {
     switch (action.type) {
+        case C.GET_ASSOCIATED_SUCCESS: {
+
+            return [...action.payload];
+        }
         case C.UPDATE_NEW_ROLE: {
             return state;
+        }
+        default: {
+            return state;
+        }
+    }
+}
+
+export function newAccountHoldersReducer(state = [], action) {
+    switch(action.type) {
+        case C.ADD_ACCOUNT_HOLDER: {
+           //
         }
         default: {
             return state;
@@ -60,6 +75,7 @@ export function getCounter(state) {
 const root = combineReducers({
     accountHolders: holdersReducer,
     availableAccountHolders: availableHoldersReducer,
+    newAccountHolders: newAccountHoldersReducer,
     counter: fakeCountReducer
 });
 

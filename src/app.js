@@ -1,5 +1,5 @@
 import {createStore} from 'redux'
-import root, {getCounter, getAccountHolders} from './redux/combineReducers';
+import root, {getCounter, getAccountHolders, getAvailableAccountHolders} from './redux/combineReducers';
 import * as C from './redux/constants';
 // import {html, render} from 'lit-html';
 import {LitElement, html} from '@polymer/lit-element';
@@ -24,8 +24,7 @@ function configureStore() {
 const store = configureStore();
 //TODO import from a handlers/actions directory
 function selectHandler(e) {
-    let {id, value: newRole} = e.target;
-    store.dispatch({type: C.UPDATE_ROLE, payload: {id, newRole}});
+    console.log('event: ', e)
 }
 
 export default function app() {
@@ -39,6 +38,7 @@ export default function app() {
         static get properties() {
             return {
                 accountHolders: {type: Array},
+                availableAccountHolders: {type: Array},
                 localNumber: {type: Number}
             };
         }
@@ -47,14 +47,26 @@ export default function app() {
             this.localNumber +=1;
             this._invalidate();
         }
+
         updateRole(e) {
             let {id, value: newRole} = e.target;
             store.dispatch({type: C.UPDATE_ROLE, payload: {id, newRole}});
             this._invalidate();
         }
+        addAccountHolder(e) {
+            let {id, value} = e.target;
+            console.log('target id: ', id);
+            console.log('target value: ', value);
+            store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {id, value}});
+        }
+
         getHolders() {
             return getAccountHolders(store.getState());
         }
+        getAvailableHolders() {
+            return getAvailableAccountHolders(store.getState());
+        }
+
         holdersService() {
             let p = new Promise((resolve, reject) => {
                 getAccountHoldersFromService(store.dispatch, resolve, reject);
@@ -66,6 +78,7 @@ export default function app() {
         }
         render() {
             const title = 'Add /Remove V2';
+            let availableAccountHolders = this.getAvailableHolders();
     
             let holders = repeat(this.getHolders(), (a) => a.id, (a, index) => {
                 let id = a.id;
@@ -98,7 +111,7 @@ export default function app() {
                     ${ShowHolderChanges(this.getHolders())}
                     <hr />
                     <button @click=${this.addToLocalNumber}>Add a Field</button>
-                    ${newHolderForm(this.localNumber, () => {})}
+                    ${newHolderForm(this.localNumber, availableAccountHolders, this.addAccountHolder)}
                 </div>
             `;
         }
@@ -134,8 +147,14 @@ function ShowHolderChanges(holders) {
     `;
 }
 //TODO --make a class?
-function newHolderForm(numberOfFields, callback) {
-    let options = [{value: 'a', displayName: 'opt A'}, {value: 'b', displayName: 'opt B'}, {value: 'c', displayName: 'opt C'}];
+function newHolderForm(numberOfFields, availableAccountHolders, callback) {
+    let realOptions = availableAccountHolders.filter((a) => !a.selected).map((a) => {
+        let v = a.id;
+        let d = a.name;
+        return {value: v, displayName: d};
+    });
+    let options = [{value: '', displayName: ''}].concat(realOptions);
+    
     if (numberOfFields < 1) {
         return html`<p>Add someone...</p>`;
     } else {

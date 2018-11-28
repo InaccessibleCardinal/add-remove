@@ -1,7 +1,7 @@
 import request from './request';
 import * as C from '../constants';
 
-export const mocks = [
+export const accountHolderMocks = [
     {   
         memberNumber: '23457884', 
         role: 'primary',
@@ -18,6 +18,7 @@ export const mocks = [
         id: '23457887'
     }
 ];
+
 //util
 export function extendWith(target, source) {
     for (let key in source) {
@@ -32,14 +33,23 @@ export function getAccountHoldersFromService(dispatch, resolve, reject) {
     let config = {method: 'GET', url: url};
     request(config)
     .then((data) => {
-        let ah = data.slice(0, 3);
-        ah.forEach((a, i) => {
+        let accountHolders = data.slice(0, 3);
+        let associatedPpl = data.slice(4, data.length);
+        accountHolders.forEach((a, i) => {
             let nameParts = a.name.split(' ');
-            extendWith(a, mocks[i]);
             a.firstName = nameParts[0];
             a.lastName = nameParts[1];
+            extendWith(a, accountHolderMocks[i]);
         });
-        dispatch({type: C.GET_ACCOUNT_HOLDERS_SUCCESS, payload: ah});
+        associatedPpl.forEach((a, i) => {
+            let nameParts = a.name.split(' ');
+            a.firstName = nameParts[0];
+            a.lastName = nameParts[1];
+            let n = Math.random().toString().slice(2, 10);
+            a.memberNumber = a.id = n;
+        });
+        dispatch({type: C.GET_ACCOUNT_HOLDERS_SUCCESS, payload: accountHolders});
+        dispatch({type: C.GET_ASSOCIATED_SUCCESS, payload: associatedPpl});
         resolve('account holders success');
     })
     .catch((e) => {
