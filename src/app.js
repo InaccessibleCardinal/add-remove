@@ -28,13 +28,8 @@ function selectHandler(e) {
     store.dispatch({type: C.UPDATE_ROLE, payload: {id, newRole}});
 }
 
-let url = 'https://jsonplaceholder.typicode.com/users';
-let config = {method: 'GET', url: url};
-
 export default function app() {
-
-    
-
+   
     class UpdateHolders extends LitElement {
         constructor() {
             super();
@@ -61,7 +56,13 @@ export default function app() {
             return getAccountHolders(store.getState());
         }
         holdersService() {
-            getAccountHoldersFromService(store.dispatch);
+            let p = new Promise((resolve, reject) => {
+                getAccountHoldersFromService(store.dispatch, resolve, reject);
+            });
+            p.then((value) => {
+                console.log('resolved: ', value);
+                this._invalidate();
+            }).catch((e) => console.log('Error: ', e)); //_invalidate(), show an error etc.   
         }
         render() {
             const title = 'Add /Remove V2';

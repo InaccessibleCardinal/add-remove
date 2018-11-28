@@ -1,7 +1,7 @@
 import request from './request';
 import * as C from '../constants';
 
-let mocks = [
+export const mocks = [
     {   
         memberNumber: '23457884', 
         role: 'primary',
@@ -19,7 +19,7 @@ let mocks = [
     }
 ];
 //util
-function extendWith(target, source) {
+export function extendWith(target, source) {
     for (let key in source) {
         if (source.hasOwnProperty(key)) {
             target[key] = source[key];
@@ -27,7 +27,7 @@ function extendWith(target, source) {
     }
 }
 //no thunk?
-export function getAccountHoldersFromService(dispatch) {
+export function getAccountHoldersFromService(dispatch, resolve, reject) {
     let url = 'https://jsonplaceholder.typicode.com/users';
     let config = {method: 'GET', url: url};
     request(config)
@@ -40,6 +40,10 @@ export function getAccountHoldersFromService(dispatch) {
             a.lastName = nameParts[1];
         });
         dispatch({type: C.GET_ACCOUNT_HOLDERS_SUCCESS, payload: ah});
+        resolve('account holders success');
     })
-    .catch((e) => console.log('error: ', e)); 
+    .catch((e) => {
+        console.log('error: ', e);
+        reject('account holders failure');
+    }); 
 }
