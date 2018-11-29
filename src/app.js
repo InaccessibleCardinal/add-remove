@@ -1,5 +1,5 @@
-import {createStore} from 'redux'
-import root, {getCounter, getAccountHolders, getAvailableAccountHolders} from './redux/combineReducers';
+// import {createStore} from 'redux'
+import store, {getAccountHolders, getAvailableAccountHolders, getNewFields} from './redux/combineReducers';
 import * as C from './redux/constants';
 // import {html, render} from 'lit-html';
 import {LitElement, html} from '@polymer/lit-element';
@@ -18,21 +18,12 @@ import guid from './util/guid';
 //import request from './redux/actions/request';
 import {getAccountHoldersFromService} from './redux/actions/async';
 
-function configureStore() {
-    return createStore(root, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-}
-const store = configureStore();
-//TODO import from a handlers/actions directory
-function selectHandler(e) {
-    console.log('event: ', e)
-}
-
 export default function app() {
    
     class UpdateHolders extends LitElement {
         constructor() {
             super();
-            this.localNumber = 0;
+            //this.localNumber = 0;
             this.holdersService();
         }
         static get properties() {
@@ -43,8 +34,8 @@ export default function app() {
             };
         }
 
-        addToLocalNumber() {
-            this.localNumber +=1;
+        addField() {
+            store.dispatch({type: C.ADD_FIELD});
             this._invalidate();
         }
 
@@ -57,7 +48,7 @@ export default function app() {
             let {id, value} = e.target;
             console.log('target id: ', id);
             console.log('target value: ', value);
-            store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {id, value}});
+            //store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {id, value}});
         }
 
         getHolders() {
@@ -65,6 +56,9 @@ export default function app() {
         }
         getAvailableHolders() {
             return getAvailableAccountHolders(store.getState());
+        }
+        getNewAccountHolderFields() {
+            return getNewFields(store.getState());
         }
 
         holdersService() {
@@ -76,6 +70,7 @@ export default function app() {
                 this._invalidate();
             }).catch((e) => console.log('Error: ', e)); //_invalidate(), show an error etc.   
         }
+
         render() {
             const title = 'Add /Remove V2';
             let availableAccountHolders = this.getAvailableHolders();
@@ -110,8 +105,8 @@ export default function app() {
                     <hr />
                     ${ShowHolderChanges(this.getHolders())}
                     <hr />
-                    <button @click=${this.addToLocalNumber}>Add a Field</button>
-                    ${newHolderForm(this.localNumber, availableAccountHolders, this.addAccountHolder)}
+                    <button @click=${this.addField}>Add a Field</button>
+                    ${newHolderForm(this.getNewAccountHolderFields(), availableAccountHolders, this.addAccountHolder)}
                 </div>
             `;
         }
@@ -147,7 +142,7 @@ function ShowHolderChanges(holders) {
     `;
 }
 //TODO --make a class?
-function newHolderForm(numberOfFields, availableAccountHolders, callback) {
+function newHolderForm(newAccountHolderFields, availableAccountHolders, callback) {
     let realOptions = availableAccountHolders.filter((a) => !a.selected).map((a) => {
         let v = a.id;
         let d = a.name;
@@ -155,10 +150,10 @@ function newHolderForm(numberOfFields, availableAccountHolders, callback) {
     });
     let options = [{value: '', displayName: ''}].concat(realOptions);
     
-    if (numberOfFields < 1) {
+    if (newAccountHolderFields.length < 1) {
         return html`<p>Add someone...</p>`;
     } else {
-        let mapBase = makeArray(numberOfFields).map((i) => {
+        let mapBase = newAccountHolderFields.map((i) => {
             let o = {};
             o.uid = guid();
             return o;
@@ -172,12 +167,4 @@ function newHolderForm(numberOfFields, availableAccountHolders, callback) {
         });
         return fieldList;
     }
-}
-
-function makeArray(n) {
-    let arr = [];
-    for (let i = 0; i < n; ++i) {
-        arr.push(i);
-    }
-    return arr;
 }

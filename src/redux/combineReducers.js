@@ -1,18 +1,36 @@
 //
+import {createStore} from 'redux'
 import {combineReducers} from 'redux';
-import {availableAccountHolders} from '../data/accountHolders';
 import * as C from './constants';
+import {updateArrayById} from '../util/util';
 
-export function holdersReducer(state = [], action) {
+const initialAccountState = {
+    accountHolders: [],
+    availableAccountHolders: []
+};
+
+export function accountStateReducer(state = initialAccountState, action) {
     switch (action.type) {
+        
+        //existing
         case C.GET_ACCOUNT_HOLDERS_SUCCESS: {
-
-            return [...action.payload];
+            let {payload} = action;
+            return {...state, accountHolders: payload};
         }
         case C.UPDATE_ROLE: {
             let {id, newRole} = action.payload;
-            return updateArrayById(state, id, [{changeKey: 'newRole', changeValue: newRole}]);
+            let updatedHolders = updateArrayById(state.accountHolders, id, [{changeKey: 'newRole', changeValue: newRole}]);
+            return {...state, accountHolders: updatedHolders};
         }
+        //associated
+        case C.GET_ASSOCIATED_SUCCESS: {
+            let {payload} = action;
+            return {...state, availableAccountHolders: payload};
+        }
+        case C.UPDATE_NEW_ROLE: {
+            return state;
+        }
+
         default: {
             return state;
         }
@@ -20,77 +38,49 @@ export function holdersReducer(state = [], action) {
 }
 
 export function getAccountHolders(state) {
-    return state.accountHolders;
-}
-
-export function availableHoldersReducer(state = availableAccountHolders, action) {
-    switch (action.type) {
-        case C.GET_ASSOCIATED_SUCCESS: {
-
-            return [...action.payload];
-        }
-        case C.UPDATE_NEW_ROLE: {
-            return state;
-        }
-        default: {
-            return state;
-        }
-    }
-}
-
-export function newAccountHoldersReducer(state = [], action) {
-    switch(action.type) {
-        case C.ADD_ACCOUNT_HOLDER: {
-           //
-        }
-        default: {
-            return state;
-        }
-    }
+    return state.accountState.accountHolders;
 }
 
 export function getAvailableAccountHolders(state) {
-    return state.availableAccountHolders;
+    return state.accountState.availableAccountHolders;
 }
 
-export function getAvailableAccountHoldersNotSelected(state) {
-    return state.availableAccountHolders.filter((a) => !a.selected);
-}
+const initialNewFields = [];
 
+export function newFieldsReducer(state = initialNewFields, action) {
 
-let count = 0;
-export function fakeCountReducer(state = count, action) {
-    if (action.type === 'ADD') {
-        return state + 1;
-    } else if (action.type === 'SUBTRACT') {
-        return state - 1;
-    } else {
-        return state;
+    switch(action.type) {
+
+        case C.ADD_FIELD: {
+            if (state.length === 0) {
+                return state.concat([0]);
+            } else {
+                let max = Math.max.apply(null, state);
+                return state.concat([max + 1]);
+            }
+        }
+        case C.REMOVE_FIELD: {
+            return state;
+        }
+
+        default: {
+            return state;
+        }
     }
 }
 
-export function getCounter(state) {
-    return state.counter;
+export function getNewFields(state) {
+    return state.newFields;
 }
+
 const root = combineReducers({
-    accountHolders: holdersReducer,
-    availableAccountHolders: availableHoldersReducer,
-    newAccountHolders: newAccountHoldersReducer,
-    counter: fakeCountReducer
+    accountState: accountStateReducer,
+    newFields: newFieldsReducer 
 });
 
-export default root;
-
-
-//util
-function updateArrayById(arrayToUpdate, id, arrayOfChanges) {
-    let len = arrayToUpdate.length;
-    let objToUpdate = arrayToUpdate.find((o) => o.id === id);
-    let index = arrayToUpdate.indexOf(objToUpdate);
-    let updatedObj = {...objToUpdate};
-    arrayOfChanges.forEach((changeObj) => {
-        let {changeKey, changeValue} = changeObj;
-        updatedObj[changeKey] = changeValue;
-    });
-    return arrayToUpdate.slice(0, index).concat([updatedObj], arrayToUpdate.slice(index + 1, len));
+function configureStore() {
+    return createStore(root, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 }
+const store = configureStore();
+
+export default store;
