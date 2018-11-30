@@ -101,10 +101,10 @@ export default function app() {
                         ${holders}
                     </div>
                     <hr />
-                    ${ShowHolderChanges(this.getHolders())}
-                    <hr />
                     <button @click=${this.addField}>Add a Field</button>
                     ${newHolderForm(this.getNewAccountHolderFields(), availableAccountHolders, this.addAccountHolder)}
+                    <hr />
+                    ${ShowHolderChanges(this.getHolders())}
                 </div>
             `;
         }
@@ -158,8 +158,15 @@ function newHolderForm(newAccountHolderFields, availableAccountHolders, callback
         });
         let fieldList = repeat(mapBase, (o) => o.uid, (o) => {
             return html`
-                <div>
-                    ${Select(options, callback, o.uid)}
+                <div style=${flexContainerStyle}>
+                    <div style=${flexChildStyle}>
+                        <div style=${accountHolderTextStyle}><span>new holder:</span></div>
+                        ${Select(options, callback, o.uid)}
+                    </div>
+                    <div style=${flexChildStyle}>
+                        <div style=${accountHolderTextStyle}><span>new role:</span></div>
+                        ${Select(selectOptions, () => {}, 'role_' + o.uid)}
+                    </div>
                 </div>
             `;
         });
