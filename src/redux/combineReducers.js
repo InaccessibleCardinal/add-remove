@@ -2,7 +2,7 @@
 import {createStore} from 'redux'
 import {combineReducers} from 'redux';
 import * as C from './constants';
-import {updateArrayById} from '../util/util';
+import {updateArrayById, replaceInArrayByIndex} from '../util/util';
 
 const initialAccountState = {
     accountHolders: [],
@@ -30,15 +30,42 @@ export function accountStateReducer(state = initialAccountState, action) {
         }
         case C.ADD_ACCOUNT_HOLDER: {
 
-            let {id, value} = action.payload;
-            let newAccountHolders = state.newAccountHolders;
-            let temp = state.availableAccountHolders.find((a) => a.id === value);
-            let newHolder = {...temp, fieldId: id};
-            if (newAccountHolders.filter((a) => a.fieldId === id).length === 0) {
-                return {...state, newAccountHolders: newAccountHolders.concat([newHolder])};
-            } else {
-                //replace holder
-                return state;
+            let {fieldId, memberNumber} = action.payload;
+            let {newAccountHolders, availableAccountHolders} = state;
+            let temp = availableAccountHolders.find((a) => a.memberNumber === memberNumber);
+            let index1 = availableAccountHolders.indexOf(temp);
+            let newHolder = {...temp, fieldId: fieldId, selected: true};
+            let existing = newAccountHolders.find((a) => a.fieldId === fieldId);
+
+            if (existing) {
+                
+                if (existing.memberNumber === newHolder.memberNumber) {
+                    return state; //no change, do nothing
+                } else {
+                    //replace existing
+                    let existingDeselected = {...existing, selected: false, fieldId: ''};
+                    
+                    let index2 = newAccountHolders.indexOf(existing);                    
+                    let index3 = availableAccountHolders.indexOf(existing);
+                    let updatedNewHolders = replaceInArrayByIndex(newAccountHolders, newHolder, index2);
+                    let updatedAvailable1 = replaceInArrayByIndex(availableAccountHolders, newHolder, index1);
+                    let updatedAvailable2 = replaceInArrayByIndex(updatedAvailable1, existingDeselected, index3);
+
+                    return {
+                        ...state, 
+                        newAccountHolders: updatedNewHolders, 
+                        availableAccountHolders: updatedAvailable2
+                    };
+                }
+                
+            } else { //just add
+
+                return {
+                    ...state, 
+                    newAccountHolders: newAccountHolders.concat([newHolder]),
+                    availableAccountHolders: replaceInArrayByIndex(availableAccountHolders, newHolder, index1)
+                };
+
             }
            
         }
@@ -58,6 +85,10 @@ export function getAccountHolders(state) {
 
 export function getAvailableAccountHolders(state) {
     return state.accountState.availableAccountHolders;
+}
+
+export function getAvailableAccountHoldersNotSelected(state) {
+    return state.accountState.availableAccountHolders.filter((a) => !a.selected);
 }
 
 export function getNewAccountHolders(state) {

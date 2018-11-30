@@ -13,3 +13,8 @@ export function updateArrayById(arrayToUpdate, id, arrayOfChanges) {
     });
     return arrayToUpdate.slice(0, index).concat([updatedObj], arrayToUpdate.slice(index + 1, len));
 }
+
+export function replaceInArrayByIndex(arrayToChange, newEl, index) {
+    let len = arrayToChange.length;
+    return arrayToChange.slice(0, index).concat([newEl], arrayToChange.slice(index + 1, len));
+}

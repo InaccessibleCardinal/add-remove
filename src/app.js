@@ -45,10 +45,8 @@ export default function app() {
             this._invalidate();
         }
         addAccountHolder(e) {
-            let {id, value} = e.target;
-            console.log('target id: ', id);
-            console.log('target value: ', value);
-            store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {id, value}});
+            let {id: fieldId, value: memberNumber} = e.target;
+            store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {fieldId, memberNumber}});
         }
 
         getHolders() {
