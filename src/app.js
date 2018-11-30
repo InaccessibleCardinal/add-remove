@@ -48,7 +48,7 @@ export default function app() {
             let {id, value} = e.target;
             console.log('target id: ', id);
             console.log('target value: ', value);
-            //store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {id, value}});
+            store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {id, value}});
         }
 
         getHolders() {

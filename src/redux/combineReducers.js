@@ -6,7 +6,8 @@ import {updateArrayById} from '../util/util';
 
 const initialAccountState = {
     accountHolders: [],
-    availableAccountHolders: []
+    availableAccountHolders: [],
+    newAccountHolders: []
 };
 
 export function accountStateReducer(state = initialAccountState, action) {
@@ -27,6 +28,20 @@ export function accountStateReducer(state = initialAccountState, action) {
             let {payload} = action;
             return {...state, availableAccountHolders: payload};
         }
+        case C.ADD_ACCOUNT_HOLDER: {
+
+            let {id, value} = action.payload;
+            let newAccountHolders = state.newAccountHolders;
+            let temp = state.availableAccountHolders.find((a) => a.id === value);
+            let newHolder = {...temp, fieldId: id};
+            if (newAccountHolders.filter((a) => a.fieldId === id).length === 0) {
+                return {...state, newAccountHolders: newAccountHolders.concat([newHolder])};
+            } else {
+                //replace holder
+                return state;
+            }
+           
+        }
         case C.UPDATE_NEW_ROLE: {
             return state;
         }
@@ -43,6 +58,10 @@ export function getAccountHolders(state) {
 
 export function getAvailableAccountHolders(state) {
     return state.accountState.availableAccountHolders;
+}
+
+export function getNewAccountHolders(state) {
+    return state.accountState.newAccountHolders;
 }
 
 const initialNewFields = [];
