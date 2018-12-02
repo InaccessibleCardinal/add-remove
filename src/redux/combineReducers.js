@@ -2,7 +2,7 @@
 import {createStore} from 'redux'
 import {combineReducers} from 'redux';
 import * as C from './constants';
-import {updateArrayById, replaceInArrayByIndex, removeByIdentifier} from '../util/util';
+import {updateArrayByIdentifier, replaceInArrayByIndex, removeByIdentifier} from '../util/util';
 import guid from '../util/guid';
 
 const initialAccountState = {
@@ -22,7 +22,7 @@ export function accountStateReducer(state = initialAccountState, action) {
         }
         case C.UPDATE_ROLE: {
             let {id, newRole} = action.payload;
-            let updatedHolders = updateArrayById(state.accountHolders, id, [{changeKey: 'newRole', changeValue: newRole}]);
+            let updatedHolders = updateArrayByIdentifier(state.accountHolders, 'id', id, [{changeKey: 'newRole', changeValue: newRole}]);
             return {...state, accountHolders: updatedHolders};
         }
         //associated
@@ -33,11 +33,14 @@ export function accountStateReducer(state = initialAccountState, action) {
         case C.ADD_ACCOUNT_HOLDER: {
 
             let {fieldId, memberNumber} = action.payload;
-            let {newAccountHolders, availableAccountHolders} = state;
+            let {newAccountHolders, availableAccountHolders, newFields} = state;
             let temp = availableAccountHolders.find((a) => a.memberNumber === memberNumber);
             let index1 = availableAccountHolders.indexOf(temp);
             let newHolder = {...temp, fieldId: fieldId, selected: true};
             let existing = newAccountHolders.find((a) => a.fieldId === fieldId);
+            //each change will update fields as well
+            let newFieldsChanges = [{changeKey: 'value', changeValue: memberNumber}];
+            let updatedNewFields = updateArrayByIdentifier(newFields, 'uid', fieldId, newFieldsChanges);
 
             if (existing) {
                 
@@ -56,7 +59,8 @@ export function accountStateReducer(state = initialAccountState, action) {
                     return {
                         ...state, 
                         newAccountHolders: updatedNewHolders, 
-                        availableAccountHolders: updatedAvailable2
+                        availableAccountHolders: updatedAvailable2,
+                        newFields: updatedNewFields
                     };
                 }
                 
@@ -65,7 +69,8 @@ export function accountStateReducer(state = initialAccountState, action) {
                 return {
                     ...state, 
                     newAccountHolders: newAccountHolders.concat([newHolder]),
-                    availableAccountHolders: replaceInArrayByIndex(availableAccountHolders, newHolder, index1)
+                    availableAccountHolders: replaceInArrayByIndex(availableAccountHolders, newHolder, index1),
+                    newFields: updatedNewFields
                 };
 
             }
@@ -76,7 +81,7 @@ export function accountStateReducer(state = initialAccountState, action) {
         }
         //fields
         case C.ADD_FIELD: {
-            let newFields = state.newFields.concat([{uid: guid()}]);
+            let newFields = state.newFields.concat([{uid: guid(), value: ''}]);
             return {...state, newFields};
           
         }

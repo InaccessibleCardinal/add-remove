@@ -2,9 +2,9 @@ export function type(o) {
     return Object.prototype.toString.call(o).slice(8, -1);
 }
 
-export function updateArrayById(arrayToUpdate, id, arrayOfChanges) {
+export function updateArrayByIdentifier(arrayToUpdate, idName, id, arrayOfChanges) {
     let len = arrayToUpdate.length;
-    let objToUpdate = arrayToUpdate.find((o) => o.id === id);
+    let objToUpdate = arrayToUpdate.find((o) => o[idName] === id);
     let index = arrayToUpdate.indexOf(objToUpdate);
     let updatedObj = {...objToUpdate};
     arrayOfChanges.forEach((changeObj) => {
