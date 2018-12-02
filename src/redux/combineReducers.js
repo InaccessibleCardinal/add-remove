@@ -2,12 +2,14 @@
 import {createStore} from 'redux'
 import {combineReducers} from 'redux';
 import * as C from './constants';
-import {updateArrayById, replaceInArrayByIndex} from '../util/util';
+import {updateArrayById, replaceInArrayByIndex, removeByIdentifier} from '../util/util';
+import guid from '../util/guid';
 
 const initialAccountState = {
     accountHolders: [],
     availableAccountHolders: [],
-    newAccountHolders: []
+    newAccountHolders: [],
+    newFields: []
 };
 
 export function accountStateReducer(state = initialAccountState, action) {
@@ -72,6 +74,17 @@ export function accountStateReducer(state = initialAccountState, action) {
         case C.UPDATE_NEW_ROLE: {
             return state;
         }
+        //fields
+        case C.ADD_FIELD: {
+            let newFields = state.newFields.concat([{uid: guid()}]);
+            return {...state, newFields};
+          
+        }
+        case C.REMOVE_FIELD: {
+            let newFields = state.newFields;
+            let uid = action.payload;
+            return {...state, newFields: removeByIdentifier(newFields, 'uid', uid)};
+        }
 
         default: {
             return state;
@@ -95,37 +108,12 @@ export function getNewAccountHolders(state) {
     return state.accountState.newAccountHolders;
 }
 
-const initialNewFields = [];
-
-export function newFieldsReducer(state = initialNewFields, action) {
-
-    switch(action.type) {
-
-        case C.ADD_FIELD: {
-            if (state.length === 0) {
-                return state.concat([0]);
-            } else {
-                let max = Math.max.apply(null, state);
-                return state.concat([max + 1]);
-            }
-        }
-        case C.REMOVE_FIELD: {
-            return state;
-        }
-
-        default: {
-            return state;
-        }
-    }
-}
-
 export function getNewFields(state) {
-    return state.newFields;
+    return state.accountState.newFields;
 }
 
 const root = combineReducers({
-    accountState: accountStateReducer,
-    newFields: newFieldsReducer 
+    accountState: accountStateReducer 
 });
 
 function configureStore() {

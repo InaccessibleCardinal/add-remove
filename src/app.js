@@ -1,11 +1,11 @@
-// import {createStore} from 'redux'
 import store, {getAccountHolders, getAvailableAccountHolders, getNewFields} from './redux/combineReducers';
 import * as C from './redux/constants';
-// import {html, render} from 'lit-html';
 import {LitElement, html} from '@polymer/lit-element';
 import {repeat} from 'lit-html/directives/repeat';
-import Header, {Header2} from './components/Header';
+import Header from './components/Header';
 import Select from './components/Select';
+import NewHolderForm from './components/NewHolderForm';
+import ShowHolderChanges from './components/ShowHolderChanges';
 import {
     appStyle, 
     appHeaderStyle, 
@@ -14,8 +14,7 @@ import {
     accountHolderTextStyle
 } from './styles';
 import {selectOptions} from './options';
-import guid from './util/guid';
-//import request from './redux/actions/request';
+
 import {getAccountHoldersFromService} from './redux/actions/async';
 
 export default function app() {
@@ -23,14 +22,12 @@ export default function app() {
     class UpdateHolders extends LitElement {
         constructor() {
             super();
-            //this.localNumber = 0;
             this.holdersService();
         }
         static get properties() {
             return {
                 accountHolders: {type: Array},
-                availableAccountHolders: {type: Array},
-                localNumber: {type: Number}
+                availableAccountHolders: {type: Array}
             };
         }
 
@@ -102,7 +99,7 @@ export default function app() {
                     </div>
                     <hr />
                     <button @click=${this.addField}>Add a Field</button>
-                    ${newHolderForm(this.getNewAccountHolderFields(), availableAccountHolders, this.addAccountHolder)}
+                    ${NewHolderForm(this.getNewAccountHolderFields(), availableAccountHolders, this.addAccountHolder)}
                     <hr />
                     ${ShowHolderChanges(this.getHolders())}
                 </div>
@@ -112,64 +109,33 @@ export default function app() {
     customElements.define('update-holders', UpdateHolders);
 }
 
-
-
-function ShowHolderChanges(holders) {
-    let holdersMarkup = repeat(holders, (a) => a.id, (a, index) => {
-        return html`
-            <div style=${flexContainerStyle}>
-                <div style=${flexChildStyle}>
-                    <div style=${accountHolderTextStyle}><span>${a.firstName + ' ' + a.lastName}</span></div>
-                </div>
-                <div style=${flexChildStyle}>
-                    <div style=${accountHolderTextStyle}><span>new role: </span></div>
-                </div>
-                <div style=${flexChildStyle}>
-                    <div style=${accountHolderTextStyle}><span>${a.newRole || 'Set a new role...'}</span></div>
-                </div>
-            </div>
-        `;
-    });
-    return html`
-        <div>
-            <div>${Header2('Changes:', appHeaderStyle)}</div>
-            <div>
-                ${holdersMarkup}
-            </div>
-        </div>
-    `;
-}
-//TODO --make a class?
-function newHolderForm(newAccountHolderFields, availableAccountHolders, callback) {
-    let realOptions = availableAccountHolders.filter((a) => !a.selected).map((a) => {
-        let v = a.id;
-        let d = a.name;
-        return {value: v, displayName: d};
-    });
-    let options = [{value: '', displayName: ''}].concat(realOptions);
+// function NewHolderForm(newAccountHolderFields, availableAccountHolders, callback) {
+ 
+//     let realOptions = availableAccountHolders.map((a) => {
+//         let v = a.id;
+//         let d = a.name;
+//         return {value: v, displayName: d};
+//     });
+//     let options = [{value: '', displayName: ''}].concat(realOptions);
     
-    if (newAccountHolderFields.length < 1) {
-        return html`<p>Add someone...</p>`;
-    } else {
-        let mapBase = newAccountHolderFields.map((i) => {
-            let o = {};
-            o.uid = guid();
-            return o;
-        });
-        let fieldList = repeat(mapBase, (o) => o.uid, (o) => {
-            return html`
-                <div style=${flexContainerStyle}>
-                    <div style=${flexChildStyle}>
-                        <div style=${accountHolderTextStyle}><span>new holder:</span></div>
-                        ${Select(options, callback, o.uid)}
-                    </div>
-                    <div style=${flexChildStyle}>
-                        <div style=${accountHolderTextStyle}><span>new role:</span></div>
-                        ${Select(selectOptions, () => {}, 'role_' + o.uid)}
-                    </div>
-                </div>
-            `;
-        });
-        return fieldList;
-    }
-}
+//     if (newAccountHolderFields.length < 1) {
+//         return html`<p>Add someone...</p>`;
+//     } else {
+        
+//         let fieldList = repeat(newAccountHolderFields, (o) => o.uid, (o) => {
+//             return html`
+//                 <div style=${flexContainerStyle}>
+//                     <div style=${flexChildStyle}>
+//                         <div style=${accountHolderTextStyle}><span>new holder:</span></div>
+//                         ${Select(options, callback, o.uid)}
+//                     </div>
+//                     <div style=${flexChildStyle}>
+//                         <div style=${accountHolderTextStyle}><span>new role:</span></div>
+//                         ${Select(selectOptions, () => {}, 'role_' + o.uid)}
+//                     </div>
+//                 </div>
+//             `;
+//         });
+//         return fieldList;
+//     }
+// }

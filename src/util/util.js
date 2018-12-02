@@ -18,3 +18,14 @@ export function replaceInArrayByIndex(arrayToChange, newEl, index) {
     let len = arrayToChange.length;
     return arrayToChange.slice(0, index).concat([newEl], arrayToChange.slice(index + 1, len));
 }
+
+export function removeByIdentifier(a, idName, id) {
+    if (type(a) === 'Array') {
+        let len = a.length;
+        let objToRemove = a.find((o) => o[idName] === id);
+        let index = a.indexOf(objToRemove);
+        return a.slice(0, index).concat(a.slice(index + 1, len));
+    } else {
+        throw new Error('The first argument to \'removeByIdentifier\' must be an array.');
+    }
+}
