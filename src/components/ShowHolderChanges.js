@@ -8,8 +8,9 @@ import {
     accountHolderTextStyle
 } from '../styles';
 
-export default function ShowHolderChanges(holders) {
-    let holdersMarkup = repeat(holders, (a) => a.id, (a, index) => {
+export default function ShowHolderChanges(holders, newHolders) {
+    let changedHolders = holders.concat(newHolders);
+    let holdersMarkup = repeat(changedHolders, (a) => a.id, (a, index) => {
         return html`
             <div style=${flexContainerStyle}>
                 <div style=${flexChildStyle}>

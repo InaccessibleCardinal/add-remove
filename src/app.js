@@ -1,4 +1,9 @@
-import store, {getAccountHolders, getAvailableAccountHolders, getNewFields} from './redux/combineReducers';
+import store, {
+    getAccountHolders, 
+    getAvailableAccountHolders, 
+    getNewFields, 
+    getNewAccountHolders
+} from './redux/combineReducers';
 import * as C from './redux/constants';
 import {LitElement, html} from '@polymer/lit-element';
 import {repeat} from 'lit-html/directives/repeat';
@@ -44,6 +49,7 @@ export default function app() {
         addAccountHolder(e) {
             let {id: fieldId, value: memberNumber} = e.target;
             store.dispatch({type: C.ADD_ACCOUNT_HOLDER, payload: {fieldId, memberNumber}});
+            this._invalidate();
         }
 
         getHolders() {
@@ -51,6 +57,9 @@ export default function app() {
         }
         getAvailableHolders() {
             return getAvailableAccountHolders(store.getState());
+        }
+        getNewHolders() {
+            return getNewAccountHolders(store.getState());
         }
         getNewAccountHolderFields() {
             return getNewFields(store.getState());
@@ -101,7 +110,7 @@ export default function app() {
                     <button @click=${this.addField}>Add a Field</button>
                     ${NewHolderForm(this.getNewAccountHolderFields(), availableAccountHolders, this.addAccountHolder)}
                     <hr />
-                    ${ShowHolderChanges(this.getHolders())}
+                    ${ShowHolderChanges(this.getHolders(), this.getNewHolders())}
                 </div>
             `;
         }
